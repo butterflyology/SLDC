@@ -1,0 +1,7 @@
+---
+title: "SLDC-code"
+author: "C. A. Hamm"
+date: "August 26, 2015"
+output: html_document
+---
+
