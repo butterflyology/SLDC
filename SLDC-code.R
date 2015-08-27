@@ -83,6 +83,7 @@ par(mfrow = c(1, 1))
 # with density plots for male vs. female
 plot(density(log2(df.2$trt[df.2$chr != 1]) - log2(df.2$F.z[df.2$chr != 1])), lwd = 3, las = 1, main = "", xlab = "", ylim = c(0, 0.65))
 lines(density(log2(df.2$trt[df.2$chr == 1]) - log2(df.2$F.z[df.2$chr == 1])), lwd = 3, col = "red")
+
 # and with M:F boxplots
 boxplot((log2(df.2$trt) - log2(df.2$female)) ~ df.2$chr, pch = 19, col = c("red", rep("dodgerblue", 9)), las = 1, ylim = c(-3, 4), main = expression(paste("log"[2], "Male - log"[2], "Female")), outline = FALSE)
 
@@ -91,8 +92,10 @@ T <- FALSE
 T
 Bmori.dat <- read.csv("Data/Bmori-data.csv", header = T)
 head(Bmori.dat) 
+
 Bmori.dat <- read.csv("Data/Bmori-data.csv", header = TRUE)
 head(Bmori.dat)
+
 TRUE <- FALSE
 TRUE <- F
 TRUE <- "anything"
@@ -107,15 +110,12 @@ str(Bmori.dat)
 
 # Make your own M:A plots
 M.Mcont_Fcont<- log2(Bmori.dat$rpkm.m68) - log2(Bmori.dat$rpkm.f67) 
-
 A.Mcont_Fcont <- log2((Bmori.dat$rpkm.m68 + Bmori.dat$rpkm.f67) / 2)
 
 M.Mcont_Fexp <- log2(Bmori.dat$rpkm.m68) - log2(Bmori.dat$rpkm.f69)
-
 A.Mcont_Fexp <- log2((Bmori.dat$rpkm.m68 + Bmori.dat$rpkm.f69) / 2)
 
 M.Mexp_Fcont <- log2(Bmori.dat$rpkm.m70) - log2(Bmori.dat$rpkm.f67)
-
 A.Mexp_Fcont <- log2((Bmori.dat$rpkm.m70 + Bmori.dat$rpkm.f67) / 2)
 
 M.Mexp_Fexp <- log2(Bmori.dat$rpkm.m70) - log2(Bmori.dat$rpkm.f69)
@@ -142,6 +142,7 @@ par(mfrow = c(1, 2))
 boxplot(log2(Bmori.dat$rpkm.m68[Bmori.dat$rpkm.m68 >= 1]) ~ Bmori.dat$chr[Bmori.dat$rpkm.m68 >= 1], pch = 19, notch = TRUE, col = c("red", rep("grey", 27)), na.rm = TRUE, las = 1, ylim = c(-1, 15), main = "Control (male)", ylab = expression(paste("log"[2]," expression (RPKM)")), outline = FALSE)
 
 boxplot(log2(Bmori.dat$rpkm.m70[Bmori.dat$rpkm.m70 >= 1]) ~ Bmori.dat$chr[Bmori.dat$rpkm.m70 >= 1],  pch = 19, notch = TRUE, col = c("red", rep("grey", 27)), na.rm = TRUE, las = 1, ylim = c(-1, 15), main = expression(paste(italic("Expr"), " knockdown (male)")), ylab = expression(paste("log"[2]," expression (RPKM)")), outline = FALSE)
+par(mfrow = c(1, 1))
 
 #### We'll write a function to speed things up a bit:
 plot.ratios <- function(chr = Bmori.dat$chr, minRPKM = 1, sampA, sampB, ...) {
