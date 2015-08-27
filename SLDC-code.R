@@ -1,27 +1,16 @@
----
-title: "Sex Linked Dosage Compensation - NGS2015"
-author: "C. A. Hamm - University of Kansas"
-date: "August 26, 2015"
-output: html_document
----
-```{r global_options, include=FALSE}
-knitr::opts_chunk$set(fig.align = "center")
-```
-#### First we will make up, errrr, simulate data
-```{r making up date}
+# Chris Hamm NGS-2015 sesion on sex-linked dosage compensation
+
 set.seed(13342143)
 sessionInfo()
 setwd("~/Desktop/Projects/NGS-course/SLDC")
 
+#### First we will make up, errrr, simulate data
 # simulate read counts under a log normal distribution
 go.1 <- rlnorm(n = 1e4, meanlog = 3, sdlog = 1)
 head(go.1)
 hist(go.1, col = "grey", main = "", las = 1, breaks = 50)
-```
 
-#### Now we will simulate data for males and females under **_equal_** expression
-
-```{r male and female}
+#### Now we will simulate data for males and females under equal expression
 #Male data
 M.exp <- go.1 + rnorm(1e4, mean = 0, sd = 10)
 M.exp[M.exp < 0.1] <- 0.1 # we will be using log2, and don't want the world to implode.
@@ -35,9 +24,8 @@ df.2 <- data.frame(exp = go.1, male = M.exp, female = F.exp, chr = as.factor(rep
 head(df.2)
 tail(df.2)
 str(df.2)
-```
+
 #### We can explore the data a bit:
-```{r data exploration}
 plot(M.exp, F.exp, pch = 19, las = 1, col = rgb(0, 0, 0, 0.2))
 
 #### Make your own M:A plot
@@ -50,32 +38,24 @@ lines(density(log2(F.exp)), lwd = 3, main = "", col = "red", lty = 2)
 # overlay the base expression
 lines(density(log2(df.2$exp)), lwd = 3, col = "dodgerblue", lty = 4) 
 
-```
-
 #### Note the bimodality? That is a consequence of not wanting the world to implode. We'll get rid of that in short order.
 
 #### Let's plot the log2 expression for males and females by chromosome:
-```{r MF boxplots}
 par(mfrow = c(1, 2))
 # Chromosome 1 is the sex chromosome
 boxplot(log2(df.2$male) ~ df.2$chr, las =1, pch = 19, col = c("red", rep("dodgerblue", 9)), ylim = c(-1, 9), main = "male", outline = FALSE) 
 boxplot(log2(df.2$female) ~ df.2$chr, las =1, pch = 19, col = c("red", rep("dodgerblue", 9)), ylim = c(-1, 9), main = "female", outline = FALSE)
 par(mfrow = c(1, 1))
-```
 
 #### Cool, Males and Females show the same expression by chromosome. We can look at this other ways:
-
-```{r equal expr M:F}
 # This is chromosome by chromosome
 boxplot((log2(df.2$male) - log2(df.2$female)) ~ df.2$chr, pch = 19, col = c("red", rep("dodgerblue", 9)), las = 1, ylim = c(-3, 3), main = expression(paste("log"[2], "Male - log"[2], "Female")), outline = FALSE) 
 
 # Autosomes vs. sex-chromosome
 plot(density(log2(df.2$male[df.2$chr != 1]) - log2(df.2$female[df.2$chr != 1])), lwd = 3, las = 1, main = "", xlab = "")
 lines(density(log2(df.2$male[df.2$chr == 1]) - log2(df.2$female[df.2$chr == 1])), lwd = 3, col = "red")
-```
 
 #### Now let's add a dosage effect that is **_equal_** in both sexes (70% reduction)
-```{r add equal dose}
 df.2$M.z <- df.2$male
 df.2$M.z[df.2$chr == 1] <- df.2$male[df.2$chr == 1] * 0.7
 
@@ -87,50 +67,44 @@ par(mfrow = c(1, 2))
 boxplot(log2(df.2$M.z) ~ df.2$chr, las =1, pch = 19, col = c("red", rep("dodgerblue", 9)), ylim = c(-1, 9), main = "male", outline = FALSE)
 boxplot(log2(df.2$F.z) ~ df.2$chr, las =1, pch = 19, col = c("red", rep("dodgerblue", 9)), ylim = c(-1, 9), main = "female", outline = FALSE)
 par(mfrow = c(1, 1))
-```
+
 #### The effect is pretty visible in the chromosome plots
-
 #### Now let's look at what happens if we double male expression
-
-```{r change it}
 df.2$trt <- df.2$male
 df.2$trt[df.2$chr == 1] <- df.2$male[df.2$chr == 1] * 2
 head(df.2)
 
- par(mfrow = c(1, 2))
+par(mfrow = c(1, 2))
 boxplot(log2(df.2$trt) ~ df.2$chr, las =1, pch = 19, col = c("red", rep("dodgerblue", 9)), ylim = c(-1, 10), main = "male", outline = FALSE)
 boxplot(log2(df.2$F.z) ~ df.2$chr, las =1, pch = 19, col = c("red", rep("dodgerblue", 9)), ylim = c(-1, 10), main = "female", outline = FALSE)
 par(mfrow = c(1, 1))
-```
+
 #### You can really see male expression go up:
-```{r density plot DE}
 # with density plots for male vs. female
 plot(density(log2(df.2$trt[df.2$chr != 1]) - log2(df.2$F.z[df.2$chr != 1])), lwd = 3, las = 1, main = "", xlab = "", ylim = c(0, 0.65))
 lines(density(log2(df.2$trt[df.2$chr == 1]) - log2(df.2$F.z[df.2$chr == 1])), lwd = 3, col = "red")
 # and with M:F boxplots
 boxplot((log2(df.2$trt) - log2(df.2$female)) ~ df.2$chr, pch = 19, col = c("red", rep("dodgerblue", 9)), las = 1, ylim = c(-3, 4), main = expression(paste("log"[2], "Male - log"[2], "Female")), outline = FALSE)
-```
 
-#### Now let's play with some imaginary data from the silkmoth _Bombyx mori_
-```{r import Bmori data}
-# T <- FALSE
-# T
-# Bmori.dat <- read.csv("Data/Bmori-data.csv", header = T)
-# head(Bmori.dat) 
+#### Now let's play with some imaginary data from the silkmoth Bombyx mori
+T <- FALSE
+T
+Bmori.dat <- read.csv("Data/Bmori-data.csv", header = T)
+head(Bmori.dat) 
 Bmori.dat <- read.csv("Data/Bmori-data.csv", header = TRUE)
 head(Bmori.dat)
-# TRUE <- FALSE
-# TRUE <- F
-# TRUE <- "anything"
+TRUE <- FALSE
+TRUE <- F
+TRUE <- "anything"
 str(Bmori.dat)
-```
+
 #### The data are:
-  * f68 = Female control (Fcont)
-  * m68 = Male control (Mcont)
-  * f69 = Female experimental (Fexp)
-  * m70 = Male experimental (Mexp)
+# f68 = Female control (Fcont)
+# m68 = Male control (Mcont)
+# f69 = Female experimental (Fexp)
+# m70 = Male experimental (Mexp)
 #### Now we'll look at our data a bit:
-```{r MAplots}
+
 # Make your own M:A plots
 M.Mcont_Fcont<- log2(Bmori.dat$rpkm.m68) - log2(Bmori.dat$rpkm.f67) 
 
@@ -161,68 +135,63 @@ abline(h = 0, lwd = 3, lty = 1, col = "red")
 plot(A.Mexp_Fexp, M.Mexp_Fexp, main = "Mexp - Fexp", pch = 19, col = rgb(0, 0, 0, 0.1), cex = 0.8, ylim = c(-5, 7), xlim = c(-5, 17), xlab = "Expected count")
 abline(h = 0, lwd = 3, lty = 1, col = "red")
 par(mfrow = c(1, 1))
-```
 
 #### Now we plot Male and female control groups by chromosome
 
-```{r rpkm plots}
 par(mfrow = c(1, 2))
 boxplot(log2(Bmori.dat$rpkm.m68[Bmori.dat$rpkm.m68 >= 1]) ~ Bmori.dat$chr[Bmori.dat$rpkm.m68 >= 1], pch = 19, notch = TRUE, col = c("red", rep("grey", 27)), na.rm = TRUE, las = 1, ylim = c(-1, 15), main = "Control (male)", ylab = expression(paste("log"[2]," expression (RPKM)")), outline = FALSE)
 
 boxplot(log2(Bmori.dat$rpkm.m70[Bmori.dat$rpkm.m70 >= 1]) ~ Bmori.dat$chr[Bmori.dat$rpkm.m70 >= 1],  pch = 19, notch = TRUE, col = c("red", rep("grey", 27)), na.rm = TRUE, las = 1, ylim = c(-1, 15), main = expression(paste(italic("Expr"), " knockdown (male)")), ylab = expression(paste("log"[2]," expression (RPKM)")), outline = FALSE)
-```
+
 #### We'll write a function to speed things up a bit:
-```{r function1}
 plot.ratios <- function(chr = Bmori.dat$chr, minRPKM = 1, sampA, sampB, ...) {
-	rpkm <- data.frame(chr, sampA, sampB)
-	filter <- (sampA >= minRPKM & sampB >= minRPKM)
-	rpkm <- rpkm[filter,]
-	rpkm$lratio <- log2(rpkm$sampA) - log2(rpkm$sampB)
-	boxplot(rpkm$lratio ~ rpkm$chr, ...)
+  rpkm <- data.frame(chr, sampA, sampB)
+  filter <- (sampA >= minRPKM & sampB >= minRPKM)
+  rpkm <- rpkm[filter,]
+  rpkm$lratio <- log2(rpkm$sampA) - log2(rpkm$sampB)
+  boxplot(rpkm$lratio ~ rpkm$chr, ...)
 }
 plot.ratios(sampA = Bmori.dat$rpkm.m70, sampB=Bmori.dat$rpkm.f69, minRPKM = 0.1,  main = expression(paste(italic(Expr), " Male vs. Female")), outline = FALSE,  col = c("red", rep("grey", 27)), notch = TRUE, ylab = expression(paste("log" [2], "(Male) - log" [2], "(Female)")), las = 1)
-```
+
 #### Clearly the experimental treatment has resulted in the upregulation of the sex chromosome
 
 #### We can also plot sex-chromosome vs. autosomes:
-```{r function2}
 plot.density.za <- function(chr = Bmori.dat$chr, minRPKM = 1, sampA, sampB, ...) {
-	rpkm <- data.frame(chr, sampA, sampB)
-	filter <- (sampA > minRPKM & sampB > minRPKM)
-	rpkm <- rpkm[filter,]
-	rpkm$lratio <- log2(rpkm$sampA) - log2(rpkm$sampB)
-	rpkm$za <- ifelse(rpkm$chr == 1, "Z", "A")
-	Zvals <- rpkm$lratio[rpkm$za == "Z"]
-	Avals <- rpkm$lratio[rpkm$za == "A"]
-	plot(density(Avals), las = 1, ...)
-	abline(v = median(Avals), lty = 2, lwd = 3)
-	lines(density(Zvals), col = "red", lwd = 3)
-	abline(v = median(Zvals), lty = 2, col = "red", lwd = 3)
+  rpkm <- data.frame(chr, sampA, sampB)
+  filter <- (sampA > minRPKM & sampB > minRPKM)
+  rpkm <- rpkm[filter,]
+  rpkm$lratio <- log2(rpkm$sampA) - log2(rpkm$sampB)
+  rpkm$za <- ifelse(rpkm$chr == 1, "Z", "A")
+  Zvals <- rpkm$lratio[rpkm$za == "Z"]
+  Avals <- rpkm$lratio[rpkm$za == "A"]
+  plot(density(Avals), las = 1, ...)
+  abline(v = median(Avals), lty = 2, lwd = 3)
+  lines(density(Zvals), col = "red", lwd = 3)
+  abline(v = median(Zvals), lty = 2, col = "red", lwd = 3)
 }
 
 plot.density.za(sampA = Bmori.dat$rpkm.m70, sampB = Bmori.dat$rpkm.f69, minRPKM = 1,  main = expression(paste(italic("Masc"), ": Male vs. Female ")), xlim = c(-2,2), lwd = 3, xlab = expression(paste("Log"[2], " (Male:Female)")), ylab = "")
 legend("topright", legend = c("Z Chromosome", "Autosomes"), lty = 1, col = c("red", "black"), bty = "n", lwd = 3)
-```
 
-```{r function 3}
+
 get.za.stats <- function(chr = Bmori.dat$chr, minRPKM = 1, samp, plot.it = FALSE, ...) {
-	rpkm <- data.frame(chr, samp)
-	rpkm <- rpkm[samp > minRPKM,]
-	rpkm$za <- ifelse(rpkm$chr == 1, "Z", "A")
-	if (plot.it == TRUE) {
-		boxplot(log2(rpkm$samp) ~ rpkm$za, ...)
-	}
-	Zvals <- rpkm$samp[rpkm$za == "Z"]
-	Avals <- rpkm$samp[rpkm$za == "A"]
-	Zmean <- round(mean(Zvals), digits = 3)
-	Zmedian <- round(median(Zvals), digits = 3)
-	Amean <- round(mean(Avals), digits = 3)
-	Amedian <- round(median(Avals), digits = 3)
-	za.mean <- round(Zmean/Amean, digits = 4)
-	za.median <- round(Zmedian/Amedian, digits = 4)
-	wilcox <- wilcox.test(Zvals, Avals)
-	out.stats <- list(	"Zmean" = Zmean, "Amean" = Amean, "Z:A_mean"= za.mean, "Zmedian" = Zmedian,  "Amedian" = Amedian, "Z:A_median" = za.median, "ZvA_MWU-p" = signif(wilcox$p.value, digits = 4), "n_Zgenes" = length(Zvals), "n_Agenes" = length(Avals) 
-		)				
-	return(out.stats)
+  rpkm <- data.frame(chr, samp)
+  rpkm <- rpkm[samp > minRPKM,]
+  rpkm$za <- ifelse(rpkm$chr == 1, "Z", "A")
+  if (plot.it == TRUE) {
+    boxplot(log2(rpkm$samp) ~ rpkm$za, ...)
+  }
+  Zvals <- rpkm$samp[rpkm$za == "Z"]
+  Avals <- rpkm$samp[rpkm$za == "A"]
+  Zmean <- round(mean(Zvals), digits = 3)
+  Zmedian <- round(median(Zvals), digits = 3)
+  Amean <- round(mean(Avals), digits = 3)
+  Amedian <- round(median(Avals), digits = 3)
+  za.mean <- round(Zmean/Amean, digits = 4)
+  za.median <- round(Zmedian/Amedian, digits = 4)
+  wilcox <- wilcox.test(Zvals, Avals)
+  out.stats <- list(	"Zmean" = Zmean, "Amean" = Amean, "Z:A_mean"= za.mean, "Zmedian" = Zmedian,  "Amedian" = Amedian, "Z:A_median" = za.median, "ZvA_MWU-p" = signif(wilcox$p.value, digits = 4), "n_Zgenes" = length(Zvals), "n_Agenes" = length(Avals) 
+  )				
+  return(out.stats)
 }
 sapply(Bmori.dat[3:6], FUN = function(x) get.za.stats(samp = x))
