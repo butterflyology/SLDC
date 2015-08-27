@@ -23,13 +23,14 @@ F.exp[F.exp < 0.1] <- 0.1
 df.2 <- data.frame(exp = go.1, male = M.exp, female = F.exp, chr = as.factor(rep(1:10)))
 head(df.2)
 tail(df.2)
+dim(df.2)
 str(df.2)
 
 #### We can explore the data a bit:
 plot(M.exp, F.exp, pch = 19, las = 1, col = rgb(0, 0, 0, 0.2))
 
 #### Make your own M:A plot
-plot(log2(go.1), log2(M.exp) - log2(F.exp), pch = 19, col = rgb(0, 0, 0, 0.2), ylim = c(-10, 10), xlim = c(0, 10), las = 1, xlab = expression(paste("log Expression")), ylab = expression(paste("log"[2], " Male - log"[2], " Female")))
+plot(log2(go.1), log2(M.exp) - log2(F.exp), pch = 19, col = rgb(0, 0, 0, 0.2), ylim = c(-10, 10), xlim = c(0, 10), las = 1, xlab = expression(paste("log" [2], " Expression")), ylab = expression(paste("log"[2], " Male - log"[2], " Female")))
 
 # plot males count density
 plot(density(log2(M.exp)), lwd = 3, main = "") 
@@ -109,7 +110,7 @@ str(Bmori.dat)
 #### Now we'll look at our data a bit:
 
 # Make your own M:A plots
-M.Mcont_Fcont<- log2(Bmori.dat$rpkm.m68) - log2(Bmori.dat$rpkm.f67) 
+M.Mcont_Fcont <- log2(Bmori.dat$rpkm.m68) - log2(Bmori.dat$rpkm.f67) 
 A.Mcont_Fcont <- log2((Bmori.dat$rpkm.m68 + Bmori.dat$rpkm.f67) / 2)
 
 M.Mcont_Fexp <- log2(Bmori.dat$rpkm.m68) - log2(Bmori.dat$rpkm.f69)
@@ -171,7 +172,7 @@ plot.density.za <- function(chr = Bmori.dat$chr, minRPKM = 1, sampA, sampB, ...)
   abline(v = median(Zvals), lty = 2, col = "red", lwd = 3)
 }
 
-plot.density.za(sampA = Bmori.dat$rpkm.m70, sampB = Bmori.dat$rpkm.f69, minRPKM = 1,  main = expression(paste(italic("Masc"), ": Male vs. Female ")), xlim = c(-2,2), lwd = 3, xlab = expression(paste("Log"[2], " (Male:Female)")), ylab = "")
+plot.density.za(sampA = Bmori.dat$rpkm.m70, sampB = Bmori.dat$rpkm.f69, minRPKM = 1,  main = expression(paste(italic("Expr"), ": Male vs. Female ")), xlim = c(-2,2), lwd = 3, xlab = expression(paste("Log"[2], " (Male:Female)")), ylab = "")
 legend("topright", legend = c("Z Chromosome", "Autosomes"), lty = 1, col = c("red", "black"), bty = "n", lwd = 3)
 
 
